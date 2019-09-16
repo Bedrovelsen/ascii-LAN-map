@@ -53,7 +53,10 @@
 
 ---
 
-Runs nmap on the LAN and then generates a basic ASCII network diagram, a 'hand drawn' network diagram and an bootstrap themed web report of the scan
+1. Runs nmap using the awesome [Ullaakut/nmap](https://github.com/Ullaakut/nmap) Idiomatic nmap library for go on the LAN.
+2. Generates a basic ASCII network diagram
+3. Generates a 'hand drawn' version of the ASCII network diagram using [esimov/diagram](https://github.com/esimov/diagram)
+4. Generates a bootstrap themed web report from the LAN scan using [honze-net/nmap-bootstrap-xsl](https://github.com/honze-net/nmap-bootstrap-xsl) and xsltproc
 
 ---
 
