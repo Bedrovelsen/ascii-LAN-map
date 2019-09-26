@@ -66,4 +66,9 @@
 
 ---
 
+Notes:
+1. Requires [esimov/diagram](https://github.com/esimov/diagram).
+2. Currently no cli args supported (will add next time have some freetime), so plug your LAN's nmap supported CIDR into main.go (192.168.1.*)
+
+---
 ![LAN_DRAWING](https://github.com/Bedrovelsen/ascii-LAN-map/blob/master/LAN_DRAWING.png)
