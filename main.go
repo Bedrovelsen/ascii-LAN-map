@@ -6,6 +6,7 @@ import (
 	"github.com/Ullaakut/nmap"
 	"io/ioutil"
 	"log"
+	"net"
 	"os/exec"
 	"strings"
 	"time"
@@ -14,14 +15,29 @@ import (
 func main() {
 	fmt.Printf(
 		`
- ▄▄▄· .▄▄ ·  ▄▄· ▪  ▪      ▄▄▌   ▄▄▄·  ▐ ▄
-▐█ ▀█ ▐█ ▀. ▐█ ▌▪██ ██     ██•  ▐█ ▀█ •█▌▐█
-▄█▀▀█ ▄▀▀▀█▄██ ▄▄▐█·▐█·    ██▪  ▄█▀▀█ ▐█▐▐▌
-▐█ ▪▐▌▐█▄▪▐█▐███▌▐█▌▐█▌    ▐█▌▐▌▐█ ▪▐▌██▐█▌
- ▀  ▀  ▀▀▀▀ ·▀▀▀ ▀▀▀▀▀▀    .▀▀▀  ▀  ▀ ▀▀ █▪
+ ▄▄▄· .▄▄ ·  ▄▄· ▪  ▪      ▄▄▌   ▄▄▄·  ▐ ▄     • ▌ ▄ ·.  ▄▄▄·  ▄▄▄·
+▐█ ▀█ ▐█ ▀. ▐█ ▌▪██ ██     ██•  ▐█ ▀█ •█▌▐█    ·██ ▐███▪▐█ ▀█ ▐█ ▄█
+▄█▀▀█ ▄▀▀▀█▄██ ▄▄▐█·▐█·    ██▪  ▄█▀▀█ ▐█▐▐▌    ▐█ ▌▐▌▐█·▄█▀▀█  ██▀·
+▐█ ▪▐▌▐█▄▪▐█▐███▌▐█▌▐█▌    ▐█▌▐▌▐█ ▪▐▌██▐█▌    ██ ██▌▐█▌▐█ ▪▐▌▐█▪·•
+ ▀  ▀  ▀▀▀▀ ·▀▀▀ ▀▀▀▀▀▀    .▀▀▀  ▀  ▀ ▀▀ █▪    ▀▀  █▪▀▀▀ ▀  ▀ .▀
 
 `)
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Minute)
+	ctx := context.Background()
+	localHosts(ctx)
+	result := scanLAN(ctx)
+
+	err := nmapWebReport(ctx, result)
+	if err != nil {
+		log.Fatal("Failed to generte web report", err)
+	}
+
+	generateDiagram(ctx, result)
+	ascii2png(ctx)
+}
+
+func scanLAN(cntxt context.Context) *nmap.Run {
+
+	ctx, cancel := context.WithTimeout(cntxt, 15*time.Minute)
 	defer cancel()
 
 	var (
@@ -33,7 +49,7 @@ func main() {
 		nmap.WithContext(ctx),
 		nmap.WithServiceInfo(),
 		nmap.WithScripts("vulners"),
-		nmap.WithTargets("172.16.1.*"),
+		nmap.WithTargetInput("ip.lst"),
 		nmap.WithStylesheet("oX-html.xsl"),
 		nmap.WithFilterHost(func(h nmap.Host) bool {
 			for idx := range h.Ports {
@@ -49,7 +65,7 @@ func main() {
 		log.Fatalf("unable to create nmap scanner: %v", err)
 	}
 
-	fmt.Println("Begining nmap scan")
+	fmt.Println("Starting nmap LAN scan.")
 
 	// Executes asynchronously, allowing results to be streamed in real time.
 	if err := s.RunAsync(); err != nil {
@@ -93,15 +109,9 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Nmap done: %d hosts up scanned in %.2f seconds\n\nXML\n", len(result.Hosts), result.Stats.Finished.Elapsed)
+	fmt.Printf("Nmap done: Scanned in %.2f seconds\n\n", result.Stats.Finished.Elapsed)
+	return result
 
-	err = nmapWebReport(ctx, result)
-	if err != nil {
-		log.Fatal("Failed to generte web report", err)
-	}
-
-	generateDiagram(ctx, result)
-	ascii2png(ctx)
 }
 
 func generatePortInfo(ctx context.Context, host nmap.Host) string {
@@ -156,12 +166,13 @@ func nmapWebReport(ctx context.Context, result *nmap.Run) error {
 	}
 
 	xml2html := exec.CommandContext(ctx, "bash", "-c", "xsltproc LANscan.xml -o LAN_WebReport.html")
-	fmt.Println("Converting xml scan data into html report")
+	fmt.Println("Converting xml scan data into html report LAN_WebReport.html")
 
 	xml2html.CombinedOutput()
 	if err != nil {
 		return err
 	}
+	fmt.Println("Done", "\n\n", "ASCII HOST MAP")
 	return nil
 }
 
@@ -189,4 +200,102 @@ func genSpacing(curLine string) string {
 	}
 	curLine = curLine + "|"
 	return curLine
+}
+
+func localCIDR() string {
+	var octets string
+
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, iface := range ifaces {
+
+		// must have mac address, FlagUp and FlagBroadcast
+		if iface.HardwareAddr != nil && iface.Flags&net.FlagUp != 0 && iface.Flags&net.FlagBroadcast != 0 {
+			lanaddrs, err := iface.Addrs()
+			if err != nil {
+				log.Fatal(err)
+			}
+			octets = strings.Join((strings.SplitAfterN(lanaddrs[1].String(), ".", 4)[:3]), "") + "0/24"
+			return octets
+		}
+
+	}
+	return octets
+}
+
+func localHosts(cntxt context.Context) error {
+	ctx, cancel := context.WithTimeout(cntxt, 2*time.Minute)
+	defer cancel()
+	LANAddr := localCIDR()
+	fmt.Println("Discovering live hosts for ", LANAddr)
+	var (
+		resultBytes []byte
+		errorBytes  []byte
+	)
+
+	s, err := nmap.NewScanner(
+		nmap.WithTargets(LANAddr),
+		nmap.WithContext(ctx),
+		nmap.WithPingScan(),
+		nmap.WithDisabledDNSResolution(),
+	)
+
+	if err != nil {
+		log.Fatalf("unable to create nmap scanner: %v", err)
+	}
+
+	// Executes asynchronously, allowing results to be streamed in real time.
+	if err := s.RunAsync(); err != nil {
+		panic(err)
+	}
+
+	// Connect to stdout of scanner.
+	stdout := s.GetStdout()
+
+	// Connect to stderr of scanner.
+	stderr := s.GetStderr()
+
+	// Goroutine to watch for stdout and print to screen. Additionally it stores
+	// the bytes intoa variable for processiing later.
+	go func() {
+		for stdout.Scan() {
+			//fmt.Println(stdout.Text())
+			resultBytes = append(resultBytes, stdout.Bytes()...)
+		}
+	}()
+
+	// Goroutine to watch for stderr and print to screen. Additionally it stores
+	// the bytes intoa variable for processiing later.
+	go func() {
+		for stderr.Scan() {
+			errorBytes = append(errorBytes, stderr.Bytes()...)
+		}
+	}()
+
+	// Blocks main until the scan has completed.
+	if err := s.Wait(); err != nil {
+		panic(err)
+	}
+
+	// Parsing the results into corresponding structs.
+	result, err := nmap.Parse(resultBytes)
+
+	// Parsing the results into the NmapError slice of our nmap Struct.
+	result.NmapErrors = strings.Split(string(errorBytes), "\n")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Host discovery done: %d hosts up. Finished in %.2f seconds\n\n\n", len(result.Hosts), result.Stats.Finished.Elapsed)
+	LANIPs := []string{}
+	for _, host := range result.Hosts {
+		LANIPs = append(LANIPs, host.Addresses[0].String())
+	}
+	err = ioutil.WriteFile("ip.lst", []byte(strings.Join(LANIPs, "\n")), 0666)
+	if err != nil {
+		panic(err)
+	}
+	return nil
 }
