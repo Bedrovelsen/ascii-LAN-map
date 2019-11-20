@@ -139,7 +139,7 @@ func generateHostBox(ctx context.Context, host nmap.Host) string {
 	hostinfo := "    <" + host.Addresses[0].Addr + ">"
 	hostinfo = genSpacing(hostinfo)
 	hostBoxASCII := fmt.Sprintf(`
-		+---------------+-------|-----+
+		+-----------------------|-----+
 		|                       *     |
 		| %s
 		| %s
