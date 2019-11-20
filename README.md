@@ -7,54 +7,47 @@
 ```
 
 ```
+
 		+-----------------------------+
-		|     <172.16.1.66>           |
+		|                             |
+		|     <192.68.1.64>           |
+		|                             |
+		|                       *     |
+		+-----------------------+-----+
+		                        |
+		                        |
+		                        |
+		+-----------------------|-----+
+		|                       *     |
+		|     <192.68.1.66>           |
 		| [+] 80:http                 |
 		| [+] 111:rpcbind             |
 		|                             |
-		+---------------+-------------+
-				|
-				|
-				|
-				V
-		+-----------------------------+
-		|     <172.16.1.111>          |
-		| [+] 62078:tcpwrapped        |
-		|                             |
-		+---------------+-------------+
-				|
-				|
-				|
-				V
-		+-----------------------------+
-		|     <172.16.1.115>          |
+		|                       *     |
+		+-----------------------+-----+
+		                        |
+		                        |
+		                        |
+		+-----------------------|-----+
+		|                       *     |
+		|     <192.68.1.109>          |
 		| [+] 53:domain dnsmasq       |
 		| [+] 111:rpcbind             |
 		|                             |
-		+---------------+-------------+
-				|
-				|
-				|
-				V
-		+-----------------------------+
-		|     <172.16.1.121>          |
-		| [+] 22:ssh OpenSSH          |
-		| [+] 111:rpcbind             |
-		| [+] 443:http Golang n       |
-		| [+] 8083:us srv             |
-		|                             |
-		+---------------+-------------+
-				|
-				|
-				|
-				V
-		+-----------------------------+
-		|     <172.16.1.254>          |
-		| [+] 80:http 2Wire Ho        |
-		| [+] 443:http 2Wire Ho       |
+		|                       *     |
+		+-----------------------+-----+
+		                        |
+		                        |
+		                        |
+		+-----------------------|-----+
+		|                       *     |
+		|     <192.68.1.254>          |
+		| [+] 80:http                 |
+		| [+] 443:http                |
 		| [+] 8200:upnp               |
 		|                             |
-		+---------------+-------------+
+		|                             |
+		+-----------------------------+
 ```
 
 ---
@@ -66,9 +59,21 @@
 
 ---
 
+### How to use:
+#### Pre-requisits
+1. If go is not installed, [install go](https://golang.org/doc/install)
+2. If diagram is not installed, [install diagram](https://github.com/esimov/diagram)
+
+#### Install & Run
+```
+git clone https://github.com/Bedrovelsen/ascii-LAN-map.git
+cd ascii-LAN-map.git
+go run main.go
+```
+
+---
 Notes:
 1. Requires [esimov/diagram](https://github.com/esimov/diagram).
-2. Currently no cli args supported (will add next time have some freetime), so plug your LAN's nmap supported CIDR into main.go (192.168.1.*)
-
+2. Built in LAN CIDR network range discovery (Only tested on my Macbook Pro running Mac OS 10.14, make issue if fails to fetch CIDR on your setup)
 ---
 ![LAN_DRAWING](https://github.com/Bedrovelsen/ascii-LAN-map/blob/master/LAN_DRAWING.png)
