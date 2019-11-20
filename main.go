@@ -115,32 +115,37 @@ func scanLAN(cntxt context.Context) *nmap.Run {
 }
 
 func generatePortInfo(ctx context.Context, host nmap.Host) string {
-	var portASCII []string
-	for _, port := range host.Ports {
-		product := port.Service.Product
-		if len(port.Service.Product) > 8 {
-			product = port.Service.Product[0:8]
+	portASCII := []string{}
+	if len(host.Ports) != 0 {
+		for _, port := range host.Ports {
+			product := port.Service.Product
+			if len(port.Service.Product) > 8 {
+				product = port.Service.Product[0:8]
+			}
+			details := fmt.Sprintf("[+] %d:%s %s", port.ID, strings.Replace(port.Service.Name, "-", " ", -1), product)
+			details = genSpacing(details)
+			portASCII = append(portASCII, fmt.Sprintf("%s", details))
 		}
-		details := fmt.Sprintf("[+] %d:%s %s", port.ID, strings.Replace(port.Service.Name, "-", " ", -1), product)
-		details = genSpacing(details)
-		portASCII = append(portASCII, fmt.Sprintf("%s", details))
 	}
 	return strings.Join(portASCII, "\n\t\t| ")
 }
 func generateHostBox(ctx context.Context, host nmap.Host) string {
-	if len(host.Ports) == 0 || len(host.Addresses) == 0 {
+	if len(host.Addresses) == 0 {
 		return ""
 	}
 
 	portInfoASCII := generatePortInfo(ctx, host)
+
 	hostinfo := "    <" + host.Addresses[0].Addr + ">"
 	hostinfo = genSpacing(hostinfo)
 	hostBoxASCII := fmt.Sprintf(`
-		+-----------------------------+
+		+---------------+-------|-----+
+		|                       *     |
 		| %s
 		| %s
 		|                             |
-		+---------------+-------------+
+		|                       *     |
+		+-----------------------+-----+
 `, hostinfo, portInfoASCII)
 	return hostBoxASCII
 }
@@ -148,12 +153,15 @@ func generateHostBox(ctx context.Context, host nmap.Host) string {
 func generateDiagram(ctx context.Context, result *nmap.Run) error {
 	// Use the results to print an example output
 	var networkASCII []string
+	fivetabspace := "\t\t                        "
+	joinerline := fmt.Sprintf("%s|\n%s|\n%s|", fivetabspace, fivetabspace, fivetabspace)
 
 	for _, host := range result.Hosts {
 		networkASCII = append(networkASCII, generateHostBox(ctx, host))
 	}
 
-	diagramAll := strings.Join(networkASCII[0:], "\t\t\t\t|\n\t\t\t\t|\n\t\t\t\t|\n\t\t\t\tV")
+	//diagramAll := strings.Join(networkASCII[0:], "\t\t\t\t\t|\n\t\t\t\t\t|\n\t\t\t\t\t|")
+	diagramAll := strings.Join(networkASCII[0:], joinerline)
 	fmt.Printf("%s", diagramAll)
 	return ioutil.WriteFile("ASCII_LAN.txt", []byte(diagramAll), 0666)
 
