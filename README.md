@@ -79,7 +79,7 @@ cd ascii-LAN-map
 go mod tidy
 go build .
 chmod +x asciiLANmap
-./asciiLANmap
+./ascii-lan-map
 ```
 OR
 
