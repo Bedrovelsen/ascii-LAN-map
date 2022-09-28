@@ -1,8 +1,7 @@
-module /Users/lenniebudgell/Documents/GitTools/nmap/
+module asciiLANmap
 
-go 1.12
+go 1.19
 
-require (
-	github.com/Ullaakut/nmap v0.0.0-20190907125850-63196347c2d4
-	github.com/stretchr/testify v1.4.0 // indirect
-)
+require github.com/Ullaakut/nmap v2.0.2+incompatible
+
+require github.com/stretchr/testify v1.8.0 // indirect

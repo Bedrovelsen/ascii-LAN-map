@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	fmt.Printf(
+/*	fmt.Printf(
 		`
  ▄▄▄· .▄▄ ·  ▄▄· ▪  ▪      ▄▄▌   ▄▄▄·  ▐ ▄     • ▌ ▄ ·.  ▄▄▄·  ▄▄▄·
 ▐█ ▀█ ▐█ ▀. ▐█ ▌▪██ ██     ██•  ▐█ ▀█ •█▌▐█    ·██ ▐███▪▐█ ▀█ ▐█ ▄█
@@ -21,7 +21,9 @@ func main() {
 ▐█ ▪▐▌▐█▄▪▐█▐███▌▐█▌▐█▌    ▐█▌▐▌▐█ ▪▐▌██▐█▌    ██ ██▌▐█▌▐█ ▪▐▌▐█▪·•
  ▀  ▀  ▀▀▀▀ ·▀▀▀ ▀▀▀▀▀▀    .▀▀▀  ▀  ▀ ▀▀ █▪    ▀▀  █▪▀▀▀ ▀  ▀ .▀
 
+
 `)
+*/
 	ctx := context.Background()
 	localHosts(ctx)
 	result := scanLAN(ctx)
@@ -222,10 +224,13 @@ func localCIDR() string {
 		// must have mac address, FlagUp and FlagBroadcast
 		if iface.HardwareAddr != nil && iface.Flags&net.FlagUp != 0 && iface.Flags&net.FlagBroadcast != 0 {
 			lanaddrs, err := iface.Addrs()
+
 			if err != nil {
 				log.Fatal(err)
 			}
-			octets = strings.Join((strings.SplitAfterN(lanaddrs[1].String(), ".", 4)[:3]), "") + "0/24"
+			fmt.Println(lanaddrs)
+			octets = strings.Join((strings.SplitAfterN(lanaddrs[0].String(), ".", 4)[:3]), "") + "0/24"
+			fmt.Println(octets)
 			return octets
 		}
 
