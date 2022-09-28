@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-/*	fmt.Printf(
+	fmt.Printf(
 		`
  ▄▄▄· .▄▄ ·  ▄▄· ▪  ▪      ▄▄▌   ▄▄▄·  ▐ ▄     • ▌ ▄ ·.  ▄▄▄·  ▄▄▄·
 ▐█ ▀█ ▐█ ▀. ▐█ ▌▪██ ██     ██•  ▐█ ▀█ •█▌▐█    ·██ ▐███▪▐█ ▀█ ▐█ ▄█
@@ -23,7 +23,7 @@ func main() {
 
 
 `)
-*/
+
 	ctx := context.Background()
 	localHosts(ctx)
 	result := scanLAN(ctx)
@@ -228,9 +228,7 @@ func localCIDR() string {
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println(lanaddrs)
 			octets = strings.Join((strings.SplitAfterN(lanaddrs[0].String(), ".", 4)[:3]), "") + "0/24"
-			fmt.Println(octets)
 			return octets
 		}
 

@@ -64,16 +64,33 @@
 1. If go is not installed, [install go](https://golang.org/doc/install)
 2. If diagram is not installed, [install diagram](https://github.com/esimov/diagram)
 
-#### Install & Run
+#### Usage from source
+
+1. clone repo
+
 ```
-git clone https://github.com/Bedrovelsen/ascii-LAN-map.git
-cd ascii-LAN-map.git
+git clone https://github.com/Bedrovelsen/ascii-LAN-map
+cd ascii-LAN-map
+```
+
+2a. Build binary and execute
+
+```
+go build .
+./asciiLANmap
+```
+OR
+
+2b. run with go run directly
+
+```
 go run main.go
 ```
+
 ---
 ![LAN_DRAWING](https://github.com/Bedrovelsen/ascii-LAN-map/blob/master/LAN_DRAWING.png)
 
 ---
 Notes:
 1. Requires [esimov/diagram](https://github.com/esimov/diagram).
-2. Built in LAN CIDR network range discovery (Only tested on my Macbook Pro running Mac OS 10.14, make issue if fails to fetch CIDR on your setup)
+2. Built in LAN CIDR network range discovery (Tested under debian and previously under Mac OS X, don't hesitate to make issue if fails to fetch CIDR on your setup)
