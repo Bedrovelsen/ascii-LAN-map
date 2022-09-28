@@ -76,7 +76,9 @@ cd ascii-LAN-map
 2a. Build binary and execute
 
 ```
+go mod tidy
 go build .
+chmod +x asciiLANmap
 ./asciiLANmap
 ```
 OR
