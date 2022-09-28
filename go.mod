@@ -1,4 +1,4 @@
-module asciiLANmap
+module ascii-lan-map
 
 go 1.19
 
