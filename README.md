@@ -90,7 +90,8 @@ go run main.go
 ```
 
 ---
-![LAN_DRAWING](https://github.com/Bedrovelsen/ascii-LAN-map/blob/master/LAN_DRAWING.png)
+![LAN_DRAWING](https://raw.githubusercontent.com/Bedrovelsen/ascii-LAN-map/master/31055B27-C948-4F01-8344-BE5B6C0C329D.png)
+
 
 ---
 Notes:
