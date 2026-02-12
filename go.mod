@@ -1,6 +1,6 @@
 module ascii-lan-map
 
-go 1.19
+go 1.24
 
 require github.com/Ullaakut/nmap v2.0.2+incompatible
 

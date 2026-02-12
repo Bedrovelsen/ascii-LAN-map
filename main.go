@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/Ullaakut/nmap"
-	"io/ioutil"
 	"log"
 	"net"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -165,7 +165,7 @@ func generateDiagram(ctx context.Context, result *nmap.Run) error {
 	//diagramAll := strings.Join(networkASCII[0:], "\t\t\t\t\t|\n\t\t\t\t\t|\n\t\t\t\t\t|")
 	diagramAll := strings.Join(networkASCII[0:], joinerline)
 	fmt.Printf("%s", diagramAll)
-	return ioutil.WriteFile("ASCII_LAN.txt", []byte(diagramAll), 0666)
+	return os.WriteFile("ASCII_LAN.txt", []byte(diagramAll), 0666)
 
 }
 
@@ -304,7 +304,7 @@ func localHosts(cntxt context.Context) error {
 	for _, host := range result.Hosts {
 		LANIPs = append(LANIPs, host.Addresses[0].String())
 	}
-	err = ioutil.WriteFile("ip.lst", []byte(strings.Join(LANIPs, "\n")), 0666)
+	err = os.WriteFile("ip.lst", []byte(strings.Join(LANIPs, "\n")), 0666)
 	if err != nil {
 		panic(err)
 	}
